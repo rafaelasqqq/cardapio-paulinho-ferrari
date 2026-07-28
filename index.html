@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar do Paulinho Ferrari — Cardápio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --wood-dark: #2c1c10;
+    --panel: rgba(30, 19, 11, 0.72);
+    --line: rgba(212, 175, 130, 0.18);
+    --ink: #f6ecdd;
+    --ink-dim: #cbb79c;
+    --gold: #d9a441;
+    --gold-soft: #eccb87;
+    --whatsapp: #25d366;
+    --serif: 'Poppins', sans-serif;
+    --sans: 'Inter', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--wood-dark);
+    background-image:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0px, rgba(0,0,0,0) 3px, rgba(0,0,0,0.08) 7px, rgba(0,0,0,0) 11px),
+      repeating-linear-gradient(0deg, rgba(255,200,140,0.03) 0px, rgba(0,0,0,0.05) 2px, transparent 4px),
+      radial-gradient(ellipse 120% 70% at 30% 0%, rgba(120, 78, 42, 0.55), transparent 60%),
+      radial-gradient(ellipse 120% 70% at 80% 100%, rgba(70, 40, 18, 0.6), transparent 60%),
+      linear-gradient(160deg, #3a2513 0%, #23150c 45%, #4a2f18 75%, #2a1a0f 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.10  0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 260px 260px;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 30px 20px 18px;
+    background: linear-gradient(180deg, rgba(15,9,5,0.55), rgba(15,9,5,0.15) 80%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .logo-wrap {
+    width: 100px; height: 100px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #3a2513, #1c1109 75%);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 0 0 3px rgba(217,164,65,0.35), inset 0 0 12px rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+    padding: 10px;
+  }
+  .logo-wrap img {
+    width: 92%;
+    height: 92%;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+  .logo-wrap span { display: block; }
+
+  header h1 {
+    font-family: var(--serif); font-weight: 800; font-size: 26px;
+    letter-spacing: 0.5px; margin: 0 0 6px; color: var(--gold-soft);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  .bar-desc {
+    max-width: 480px; margin: 0 auto; font-size: 12.5px; line-height: 1.6;
+    color: var(--ink-dim); padding: 0 10px;
+  }
+
+  .lang-toggle {
+    display: inline-flex; margin-top: 14px; border: 1px solid var(--line);
+    border-radius: 999px; overflow: hidden; background: rgba(0,0,0,0.25);
+  }
+  .lang-toggle button {
+    background: transparent; border: none; color: var(--ink-dim);
+    font-family: var(--sans); font-weight: 600; font-size: 12px; letter-spacing: 1px;
+    padding: 7px 20px; cursor: pointer; transition: 0.2s;
+  }
+  .lang-toggle button.active { background: var(--gold); color: #241505; }
+
+  .filter-bar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 10px 14px; background: rgba(20, 12, 6, 0.92);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(6px);
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: rgba(255,255,255,0.04);
+    color: var(--ink-dim); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.2px; white-space: nowrap; cursor: pointer; transition: 0.15s;
+  }
+  .filter-chip.active, .filter-chip:hover { background: var(--gold); color: #241505; border-color: var(--gold); }
+
+  main { position: relative; max-width: 640px; margin: 0 auto; padding: 22px 16px 90px; }
+  .status { text-align: center; color: var(--ink-dim); font-size: 13px; padding: 40px 20px; }
+
+  .destaque-section { margin-bottom: 30px; }
+  .destaque-title {
+    font-family: var(--serif); font-weight: 800; font-size: 19px; color: var(--gold-soft);
+    text-align: center; margin: 0 0 4px;
+  }
+  .destaque-sub {
+    text-align: center; font-size: 12px; color: var(--ink-dim); margin: 0 0 16px;
+  }
+  .destaque-art {
+    width: 100%; border-radius: 14px; overflow: hidden; margin-bottom: 16px;
+    border: 1px solid var(--line);
+  }
+  .destaque-art svg { display: block; width: 100%; height: auto; }
+  .destaque-note {
+    text-align: center; font-size: 10.5px; color: var(--ink-dim); opacity: 0.75;
+    margin: -10px 0 16px; font-style: italic;
+  }
+  .destaque-card {
+    background: linear-gradient(135deg, rgba(217,164,65,0.14), rgba(255,255,255,0.02));
+    border: 1px solid rgba(217,164,65,0.4); border-radius: 14px;
+    padding: 16px; margin-bottom: 12px;
+  }
+  .destaque-card .badge {
+    display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    color: #241505; background: var(--gold); padding: 2px 9px; border-radius: 999px;
+    margin-bottom: 8px; text-transform: uppercase;
+  }
+  .destaque-card h3 {
+    font-family: var(--serif); font-size: 16px; margin: 0 0 6px; color: var(--ink);
+  }
+  .destaque-card .price {
+    float: right; font-family: var(--serif); font-weight: 700; color: var(--gold); font-size: 15px;
+  }
+  .destaque-card p { font-size: 13px; line-height: 1.55; color: var(--ink-dim); margin: 0 0 8px; }
+  .destaque-card .pairing {
+    font-size: 12px; color: var(--gold-soft); display: flex; align-items: center; gap: 6px;
+  }
+
+  .category { margin-bottom: 28px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 6px; scroll-margin-top: 62px; }
+  .category-head { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 6px; }
+  .category-head .icon { width: 28px; height: 28px; flex-shrink: 0; }
+  .category-head h2 { font-family: var(--serif); font-weight: 700; font-size: 16.5px; letter-spacing: 0.3px; color: var(--gold-soft); margin: 0; }
+
+  .item { padding: 11px 0; border-bottom: 1px dashed var(--line); }
+  .item:last-child { border-bottom: none; }
+  .item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .item-name { font-size: 14.5px; font-weight: 500; color: var(--ink); }
+  .item-price { font-family: var(--serif); font-weight: 600; font-size: 14.5px; color: var(--gold); white-space: nowrap; }
+  .item-price.empty { color: var(--ink-dim); font-weight: 400; font-size: 12px; }
+  .item-desc { font-size: 12px; color: var(--ink-dim); margin-top: 3px; line-height: 1.45; }
+
+  .variations { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .variations span {
+    font-size: 11.5px; background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    border-radius: 8px; padding: 4px 9px; color: var(--ink-dim);
+  }
+  .variations span b { color: var(--gold); font-weight: 600; }
+
+  .social-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; text-align: center; margin-top: 10px;
+  }
+  .social-card p { font-size: 13px; color: var(--ink-dim); line-height: 1.6; margin: 0 0 14px; }
+  .social-links { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .social-links a {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600;
+    color: var(--gold-soft); border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 16px; text-decoration: none; transition: 0.15s;
+  }
+  .social-links a:hover { background: rgba(217,164,65,0.15); }
+
+  footer { text-align: center; color: var(--ink-dim); font-size: 11px; padding: 20px 20px 10px; letter-spacing: 0.5px; }
+
+  .wa-fab {
+    position: fixed; right: 16px; bottom: 16px; z-index: 30;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--whatsapp); color: #fff; text-decoration: none;
+    padding: 12px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  }
+  .wa-fab svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .wa-fab span { max-width: 150px; line-height: 1.2; }
+
+  @media (max-width: 380px) {
+    .wa-fab span { display: none; }
+    .wa-fab { padding: 12px; }
+  }
+
+  .cart-fab {
+    position: fixed; right: 16px; bottom: 74px; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--gold); color: #241505; border: none; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  }
+  .cart-fab svg { width: 22px; height: 22px; }
+  .cart-badge {
+    position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px;
+    background: #c0392b; color: #fff; font-size: 10.5px; font-weight: 700;
+    border-radius: 999px; display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; border: 2px solid var(--wood-dark);
+  }
+
+  .cart-banner {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: rgba(217,164,65,0.1); border: 1px solid rgba(217,164,65,0.35);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 22px;
+    font-size: 12px; line-height: 1.55; color: var(--ink-dim);
+  }
+  .cart-banner .icon-sm { width: 22px; height: 22px; flex-shrink: 0; color: var(--gold); }
+
+  .add-row {
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 8px;
+  }
+  .qty-stepper {
+    display: flex; align-items: center; gap: 6px; border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 8px;
+  }
+  .qty-stepper button {
+    background: none; border: none; color: var(--gold-soft); font-size: 15px;
+    width: 18px; height: 18px; cursor: pointer; line-height: 1;
+  }
+  .qty-stepper .qty-val { font-size: 12px; min-width: 14px; text-align: center; color: var(--ink); }
+  .add-btn {
+    display: flex; align-items: center; gap: 5px; background: var(--gold); color: #241505;
+    border: none; border-radius: 999px; padding: 6px 12px; font-size: 11.5px; font-weight: 700;
+    cursor: pointer;
+  }
+  .add-btn svg { width: 13px; height: 13px; }
+
+  .var-add-btn {
+    background: none; border: none; color: var(--gold); font-size: 13px; font-weight: 700;
+    cursor: pointer; margin-left: 3px;
+  }
+
+  .cart-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 40;
+    display: none; align-items: flex-end; justify-content: center;
+  }
+  .cart-overlay.open { display: flex; }
+  .cart-panel {
+    width: 100%; max-width: 640px; max-height: 78vh; overflow-y: auto;
+    background: #211408; border-top: 1px solid var(--line);
+    border-radius: 18px 18px 0 0; padding: 18px 18px 22px;
+  }
+  .cart-panel h3 {
+    font-family: var(--serif); color: var(--gold-soft); margin: 0 0 12px; font-size: 17px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .cart-panel h3 .close-btn { cursor: pointer; color: var(--ink-dim); font-size: 20px; background: none; border: none; }
+  .cart-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+  .cart-row .info { flex: 1; }
+  .cart-row .info .n { font-size: 13.5px; color: var(--ink); }
+  .cart-row .info .v { font-size: 11px; color: var(--ink-dim); }
+  .cart-row .ctrl { display: flex; align-items: center; gap: 8px; }
+  .cart-row .ctrl button { background: rgba(255,255,255,0.06); border: 1px solid var(--line); color: var(--ink); width: 22px; height: 22px; border-radius: 6px; cursor: pointer; }
+  .cart-row .price { font-family: var(--serif); color: var(--gold); font-size: 13px; min-width: 62px; text-align: right; }
+  .cart-total { display: flex; justify-content: space-between; padding-top: 14px; font-family: var(--serif); font-weight: 700; font-size: 16px; color: var(--gold-soft); }
+  .cart-empty { text-align: center; color: var(--ink-dim); font-size: 13px; padding: 20px 0; }
+  .cart-note {
+    margin-top: 14px; font-size: 11.5px; line-height: 1.55; color: var(--ink-dim);
+    background: rgba(217,164,65,0.08); border: 1px solid rgba(217,164,65,0.3); border-radius: 10px; padding: 10px 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <img src="https://drive.google.com/file/d/1w2R_W117VrmbHd9lvUScWHifrCfh9fef/view?usp=sharing" 
+         alt="Bar do Paulinho Ferrari" 
+         style="width:92%; height:92%; object-fit:contain; border-radius:50%;">
+  </div>
+  <h1 id="title">Bar do Paulinho Ferrari</h1>
+  <p class="bar-desc" id="desc">Nosso bar atende Varginha e região há 46 anos e em 2013, nasce o Bar do Paulinho Ferrari. É com muita alegria e satisfação que a nossa família trabalha para oferecer à vocês, nossos clientes, os melhores pratos e a cerveja mais gelada da cidade!</p>
+</header>
+
+<div class="filter-bar" id="filterBar"></div>
+
+<main id="content">
+  <div class="status">Carregando cardápio…</div>
+</main>
+
+<button class="cart-fab" id="cartFab" onclick="toggleCart(true)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+  <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+</button>
+
+<a class="wa-fab" id="waFab" href="#" target="_blank" rel="noopener">
+  <svg viewBox="0 0 32 32" fill="currentColor"><path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.703 4.61 1.912 6.475L4 29l7.72-1.874A11.94 11.94 0 0 0 16 27c6.627 0 12-5.373 12-12S22.628 3 16.001 3zm0 21.7c-1.99 0-3.86-.55-5.46-1.5l-.39-.23-4.58 1.11 1.13-4.47-.25-.4A9.68 9.68 0 0 1 5.3 15c0-5.9 4.8-10.7 10.7-10.7S26.7 9.1 26.7 15 21.9 24.7 16.001 24.7zm5.86-8.02c-.32-.16-1.9-.94-2.19-1.05-.29-.1-.5-.16-.72.16-.21.32-.82 1.05-1 1.26-.19.21-.37.24-.69.08-.32-.16-1.34-.5-2.55-1.58-.94-.84-1.58-1.87-1.76-2.19-.19-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.72-1.75-.99-2.39-.26-.63-.53-.55-.72-.56h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.68 0 1.58 1.15 3.11 1.31 3.32.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.67.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.29-.21-.61-.37z"/></svg>
+  <span id="waText">Possui dúvidas? Chame um garçom!</span>
+</a>
+
+<div class="cart-overlay" id="cartOverlay" onclick="if(event.target===this) toggleCart(false)">
+  <div class="cart-panel">
+    <h3><span id="cartTitle">Seu Carrinho</span><button class="close-btn" onclick="toggleCart(false)">&times;</button></h3>
+    <div id="cartBody"></div>
+  </div>
+</div>
+
+<footer id="footerText">Bar do Paulinho Ferrari · cardápio digital</footer>
+
+<script>
+  // ⚠️ SUBSTITUA pela URL do seu CSV publicado (Arquivo > Compartilhar > Publicar na Web > CSV)
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTtBpctnbbuccV70hoaccCm_-Oz9uhCzZIRAdtmIZ79bADbwRVlyMzgf92e4b38kAOYsCblqWO8wt4C/pub?gid=0&single=true&output=csv";
+
+  // ⚠️ SUBSTITUA pelo número real do WhatsApp do bar (formato: código do país + DDD + número, só dígitos)
+  const WHATSAPP_NUMERO = "5535999999999";
+
+  const INSTAGRAM_HANDLE = "bar_paulinho_ferrari";
+
+  let lang = "pt";
+  let items = [];
+
+  const textos = {
+    pt: {
+      erro: "Não foi possível carregar o cardápio. Verifique a URL da planilha.",
+      desc: "Nosso bar atende Varginha e região há 46 anos e em 2013, nasce o Bar do Paulinho Ferrari. É com muita alegria e satisfação que a nossa família trabalha para oferecer à vocês, nossos clientes, os melhores pratos e a cerveja mais gelada da cidade!",
+      destaqueTitulo: "Mais Pedidos do Mês",
+      destaqueSub: "Os 3 queridinhos da casa este mês",
+      destaqueNota: "* foto ilustrativa — imagens reais dos pratos em breve",
+      pratoDiaBadge: "Prato do Dia",
+      badge: "Mais pedido",
+      pairing: "Combina com:",
+      wa: "Possui dúvidas? Chame um garçom!",
+      waMsg: "Olá! Estou vendo o cardápio digital e tenho uma dúvida, poderia me ajudar?",
+      social: "Gostou do que viu? Tire uma foto do seu prato e marque a gente!",
+      instagram: "Seguir no Instagram",
+      review: "Avaliar no Google",
+      footer: "Bar do Paulinho Ferrari · cardápio digital",
+      cartBanner: "Você pode simular o valor da sua compra: clique nos itens abaixo e adicione ao carrinho 🛒. Para efetivar o pedido, chame um garçom — o pagamento é feito no caixa após o consumo.",
+      cartTitle: "Seu Carrinho (simulação)",
+      cartEmpty: "Seu carrinho está vazio. Adicione itens do cardápio para simular o valor da sua compra.",
+      cartTotal: "Total estimado",
+      cartNote: "Este valor é apenas uma simulação. Para efetivar o pedido, chame um garçom — o pagamento é feito no caixa após o consumo.",
+      add: "Adicionar"
+    }
+  };
+
+  const icons = {
+    "Cervejas 600ml": "beer", "Cervejas Long Neck": "beer", "Cervejas Lata": "can",
+    "Cervejas Zero Álcool": "beer", "Drinks Prontos": "can", "Drinks": "cocktail", "Doses": "shot",
+    "Bebidas Não Alcoólicas": "can", "Bolinhos Gourmet": "croquette", "Petiscos": "fries",
+    "Caldos": "bowl", "Tira-Gosto": "plate", "Carnes": "meat"
+  };
+
+  function iconSvg(type) {
+    const map = {
+      beer: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 8h12v4l2 2v18a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V14l2-2V8z" fill="#3a2513" stroke="#d9a441" stroke-width="1.4"/>
+        <rect x="16" y="4" width="8" height="5" rx="1.5" fill="#3a2513" stroke="#d9a441" stroke-width="1.2"/>
+        <!-- INSIRA AQUI A IMAGEM DA CERVEJA (ex: cerveja.png) -->
+        <image href="IMAGEM_CERVEJA_AQUI" x="13" y="20" width="14" height="9" clip-path="url(#lc)" preserveAspectRatio="xMidYMid slice"/>
+      </svg>`,
+      can: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="13" y="9" width="14" height="24" rx="3" fill="#8a8f96" stroke="#d9a441" stroke-width="1.2"/>
+        <rect x="13" y="15" width="14" height="6" fill="#c0392b" opacity="0.75"/>
+        <ellipse cx="20" cy="9" rx="7" ry="2" fill="#c9ccd1" stroke="#d9a441" stroke-width="1"/>
+      </svg>`,
+      cocktail: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 10h20l-9 11v9h5v2H14v-2h5v-9L10 10z" stroke="#d9a441" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="24" cy="14" r="1.6" fill="#d9a441"/>
+        <path d="M27 8l3-3" stroke="#d9a441" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>`,
+      croquette: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="20" cy="22" rx="11" ry="8" fill="#a9702f" stroke="#d9a441" stroke-width="1.3"/>
+        <circle cx="15" cy="19" r="1.1" fill="#3a2513"/><circle cx="22" cy="24" r="1.1" fill="#3a2513"/>
+        <circle cx="25" cy="17" r="1.1" fill="#3a2513"/><circle cx="17" cy="25" r="1.1" fill="#3a2513"/>
+      </svg>`,
+      fries: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 18l3-9h8l3 9v11a2 2 0 0 1-2 2H15a2 2 0 0 1-2-2V18z" fill="#7a4a20" stroke="#d9a441" stroke-width="1.3"/>
+        <rect x="16" y="12" width="2" height="13" fill="#eccb87"/><rect x="19" y="10" width="2" height="15" fill="#eccb87"/><rect x="22" y="12" width="2" height="13" fill="#eccb87"/>
+      </svg>`,
+      bowl: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 20h22a11 8 0 0 1-22 0z" fill="#a9702f" stroke="#d9a441" stroke-width="1.3"/>
+        <path d="M14 20c0-3 2-5 6-5s6 2 6 5" stroke="#eccb87" stroke-width="1.1" fill="none"/>
+        <path d="M17 9c-1 1-1 2 0 3M23 9c-1 1-1 2 0 3" stroke="#cbb79c" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>`,
+      plate: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="21" r="11" stroke="#d9a441" stroke-width="1.4"/>
+        <circle cx="20" cy="21" r="6.5" stroke="#8a6b45" stroke-width="1"/>
+        <line x1="10" y1="10" x2="10" y2="17" stroke="#d9a441" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="30" y1="10" x2="30" y2="17" stroke="#d9a441" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>`,
+      meat: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 12c5-3 12-1 13 6 1 6-3 9-7 9-2 0-3-1-4-2l-6 6-2-2 6-6c-1-1-2-2-2-4 0-3 1-5 2-7z" fill="#8a3a24" stroke="#d9a441" stroke-width="1.3"/>
+        <path d="M9 27l4-4" stroke="#d9a441" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>`,
+      shot: `<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 11h12l-2 18a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2l-2-18z" fill="#3a2513" stroke="#d9a441" stroke-width="1.4"/>
+        <path d="M14.6 17h10.8" stroke="#eccb87" stroke-width="1.2"/>
+        <rect x="13" y="9" width="14" height="3" rx="1" fill="none" stroke="#d9a441" stroke-width="1.2"/>
+      </svg>`
+    };
+    return (map[type] || map.plate);
+  }
+
+  function destaqueArt() {
+    return `<svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3a2513"/><stop offset="1" stop-color="#1c1109"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="260" fill="url(#bgG)"/>
+      <circle cx="130" cy="130" r="76" fill="#5a3a1f" stroke="#d9a441" stroke-width="2"/>
+      <path d="M100 150c5-30 20-45 30-45s25 15 30 45" fill="#8a3a24" stroke="#eccb87" stroke-width="2"/>
+      <circle cx="320" cy="130" r="76" fill="#5a3a1f" stroke="#d9a441" stroke-width="2"/>
+      <ellipse cx="320" cy="132" rx="42" ry="30" fill="#a9702f" stroke="#eccb87" stroke-width="2"/>
+      <circle cx="308" cy="122" r="3" fill="#3a2513"/><circle cx="332" cy="138" r="3" fill="#3a2513"/><circle cx="336" cy="118" r="3" fill="#3a2513"/>
+      <circle cx="510" cy="130" r="76" fill="#5a3a1f" stroke="#d9a441" stroke-width="2"/>
+      <path d="M485 158c0-40 15-60 25-60s25 20 25 60" fill="#8a3a24" stroke="#eccb87" stroke-width="2"/>
+      <path d="M475 100c8-8 20-8 30 0M480 165c10 6 22 6 30 0" stroke="#eccb87" stroke-width="1.4" fill="none" opacity="0.6"/>
+    </svg>`;
+  }
+
+  // ---- carrinho (simulação em memória, sem persistência) ----
+  let cart = {}; // key -> {nomePt, nomeEn, variacaoPt, variacaoEn, preco, qtd}
+  let qtyDraft = {}; // qty selecionada antes de adicionar (itens simples)
+
+  function cartKey(itemId, variacao) { return itemId + (variacao ? "|" + variacao : ""); }
+
+  function stepDraft(itemId, delta) {
+    const atual = qtyDraft[itemId] || 0;
+    qtyDraft[itemId] = Math.max(0, atual + delta);
+    const el = document.getElementById("qtyval-" + itemId);
+    if (el) el.textContent = qtyDraft[itemId];
+  }
+
+  function addToCart(itemId, nomePt, nomeEn, preco, variacaoPt, variacaoEn) {
+    if (!preco || isNaN(parseFloat(String(preco).replace(",", ".")))) return;
+    const qtd = variacaoPt ? 1 : (qtyDraft[itemId] || 0);
+    if (!qtd) return;
+    const key = cartKey(itemId, variacaoPt || "");
+    if (cart[key]) {
+      cart[key].qtd += qtd;
+    } else {
+      cart[key] = { nomePt, nomeEn, variacaoPt: variacaoPt || "", variacaoEn: variacaoEn || "", preco: parseFloat(String(preco).replace(",", ".")), qtd };
+    }
+    if (!variacaoPt) qtyDraft[itemId] = 0;
+    renderCartBadge();
+  }
+
+  function cartChangeQty(key, delta) {
+    if (!cart[key]) return;
+    cart[key].qtd += delta;
+    if (cart[key].qtd <= 0) delete cart[key];
+    renderCartBadge();
+    renderCartPanel();
+  }
+
+  function cartRemove(key) {
+    delete cart[key];
+    renderCartBadge();
+    renderCartPanel();
+  }
+
+  function cartTotalValue() {
+    return Object.values(cart).reduce((acc, i) => acc + i.preco * i.qtd, 0);
+  }
+
+  function cartItemCount() {
+    return Object.values(cart).reduce((acc, i) => acc + i.qtd, 0);
+  }
+
+  function renderCartBadge() {
+    const badge = document.getElementById("cartBadge");
+    const count = cartItemCount();
+    if (count > 0) {
+      badge.style.display = "flex";
+      badge.textContent = count;
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  function renderCartPanel() {
+    const body = document.getElementById("cartBody");
+    document.getElementById("cartTitle").textContent = textos[lang].cartTitle;
+    const entries = Object.entries(cart);
+    if (!entries.length) {
+      body.innerHTML = `<div class="cart-empty">${textos[lang].cartEmpty}</div>`;
+      return;
+    }
+    let html = "";
+    entries.forEach(([key, i]) => {
+      const nome = i.nomePt;
+      const variacao = i.variacaoPt;
+      const subtotal = i.preco * i.qtd;
+      html += `<div class="cart-row">
+        <div class="info">
+          <div class="n">${nome}${variacao ? " — " + variacao : ""}</div>
+          <div class="v">${formatarPreco(i.preco)} cada</div>
+        </div>
+        <div class="ctrl">
+          <button onclick="cartChangeQty('${key}', -1)">−</button>
+          <span>${i.qtd}</span>
+          <button onclick="cartChangeQty('${key}', 1)">+</button>
+        </div>
+        <div class="price">${formatarPreco(subtotal)}</div>
+      </div>`;
+    });
+    html += `<div class="cart-total"><span>${textos[lang].cartTotal}</span><span>${formatarPreco(cartTotalValue())}</span></div>`;
+    html += `<div class="cart-note">⚠️ ${textos[lang].cartNote}</div>`;
+    body.innerHTML = html;
+  }
+
+  function toggleCart(open) {
+    const overlay = document.getElementById("cartOverlay");
+    if (open) { renderCartPanel(); overlay.classList.add("open"); }
+    else { overlay.classList.remove("open"); }
+  }
+
+  function initUI() {
+    document.getElementById("desc").textContent = textos[lang].desc;
+    document.getElementById("waText").textContent = textos[lang].wa;
+    document.getElementById("waFab").href = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(textos[lang].waMsg)}`;
+    document.getElementById("footerText").textContent = textos[lang].footer;
+  }
+
+  function formatarPreco(valor) {
+    if (valor === undefined || valor === null || String(valor).trim() === "") return "";
+    const numero = parseFloat(String(valor).replace(",", "."));
+    if (isNaN(numero)) return "";
+    return "R$ " + numero.toFixed(2).replace(".", ",");
+  }
+
+  function slug(s) { return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-"); }
+
+  function render() {
+    const content = document.getElementById("content");
+    const filterBar = document.getElementById("filterBar");
+    if (!items.length) {
+      content.innerHTML = `<div class="status">${textos[lang].erro}</div>`;
+      return;
+    }
+
+    const categorias = {}; const ordem = [];
+    items.forEach(item => {
+      const cat = item.categoria || "Outros";
+      if (!categorias[cat]) { categorias[cat] = []; ordem.push(cat); }
+      categorias[cat].push(item);
+    });
+
+    filterBar.innerHTML = ordem.map(cat => {
+      const nome = cat;
+      return `<button class="filter-chip" onclick="scrollToCat('${slug(cat)}')">${nome}</button>`;
+    }).join("");
+
+    let html = "";
+
+    // Couvert Artístico
+    html += `<div class="destaque-card" style="margin-bottom: 16px; background: linear-gradient(135deg, rgba(217,164,65,0.2), rgba(255,255,255,0.02)); border-color: rgba(217,164,65,0.6);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 24px;">🎭</span>
+          <div>
+            <span style="font-weight: 700; color: var(--gold-soft); font-size: 15px;">Couvert Artístico</span>
+            <span style="display: block; font-size: 12px; color: var(--ink-dim);">Valor adicional por pessoa para apreciar a música ao vivo</span>
+          </div>
+        </div>
+        <span style="font-family: var(--serif); font-weight: 700; color: var(--gold); font-size: 20px; background: rgba(0,0,0,0.3); padding: 4px 16px; border-radius: 999px;">R$ 10,00</span>
+      </div>
+    </div>`;
+
+    // banner do carrinho
+    html += `<div class="cart-banner">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>${textos[lang].cartBanner}</span>
+    </div>`;
+
+    // ============================================================
+    // PRATOS DO DIA (CORRIGIDO - MÚLTIPLOS E PLURAL)
+    // ============================================================
+    const pratosDia = items.filter(i => String(i.prato_do_dia).trim().toLowerCase() === "sim");
+
+    if (pratosDia.length) {
+      html += `<section class="destaque-section">
+        <h2 class="destaque-title">🍽️ Pratos do Dia</h2>
+        <p class="destaque-sub">Nossas opções especiais preparadas com todo carinho!</p>`;
+      
+      pratosDia.forEach((item, index) => {
+        const itemId = "prato-dia-" + index;
+        const nome = item.nome_pt;
+        const desc = item.descricao_pt;
+        const bebida = item.bebida_sugerida_pt;
+        
+        // Verifica se tem variações
+        const vars = [];
+        let temVariacoes = false;
+        for (const n of [1,2,3]) {
+          const labelPt = item[`var${n}_label_pt`];
+          const vp = item[`var${n}_preco`];
+          if (labelPt && String(labelPt).trim() !== "") {
+            temVariacoes = true;
+            const labelPtEsc = String(labelPt || "").replace(/'/g, "\\'");
+            const labelEnEsc = String(item[`var${n}_label_en`] || labelPt || "").replace(/'/g, "\\'");
+            const vpNum = parseFloat(String(vp).replace(",", "."));
+            const vpTxt = formatarPreco(vpNum);
+            const addBtn = vpTxt ? `<button class="var-add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${vpNum},'${labelPtEsc}','${labelEnEsc}')">+</button>` : "";
+            vars.push(`<span>${labelPt}: <b>${vpTxt || "—"}</b>${addBtn}</span>`);
+          }
+        }
+
+        // Se NÃO tem variações, usa o preço principal
+        const preco = parseFloat(String(item.preco).replace(",", "."));
+        const precoTxt = formatarPreco(preco);
+        
+        html += `<div class="destaque-card" style="border-color: rgba(217,164,65,0.6); background: linear-gradient(135deg, rgba(217,164,65,0.12), rgba(255,255,255,0.02));">
+          <span class="badge" style="background: #e67e22; color: #fff;">⭐ Prato do Dia</span>`;
+        
+        // Mostra o preço principal (se não tiver variações)
+        if (!temVariacoes && precoTxt) {
+          html += `<span class="price">${precoTxt}</span>`;
+        }
+        
+        html += `<h3>${nome}</h3>`;
+        html += `<p>${desc || ""}</p>`;
+        
+        if (bebida) {
+          html += `<div class="pairing">🍹 <strong>${textos[lang].pairing}</strong> ${bebida}</div>`;
+        }
+        
+        // Mostra as variações (se tiver)
+        if (vars.length) {
+          html += `<div class="variations">${vars.join("")}</div>`;
+        }
+        
+        // Botão "Adicionar" para itens SEM variações
+        if (!temVariacoes && precoTxt) {
+          html += `<div class="add-row">
+            <div class="qty-stepper">
+              <button onclick="stepDraft('${itemId}',-1)">−</button>
+              <span class="qty-val" id="qtyval-${itemId}">0</span>
+              <button onclick="stepDraft('${itemId}',1)">+</button>
+            </div>
+            <button class="add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${preco})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              ${textos[lang].add}
+            </button>
+          </div>`;
+        }
+        
+        html += `</div>`;
+      });
+      
+      html += `</section>`;
+    }
+
+    // ============================================================
+    // DESTAQUES (MAIS PEDIDOS)
+    // ============================================================
+    const destaques = items.filter(i => String(i.destaque).trim().toLowerCase() === "sim");
+
+    if (destaques.length) {
+      html += `<section class="destaque-section">
+        <h2 class="destaque-title">${textos[lang].destaqueTitulo}</h2>
+        <p class="destaque-sub">${textos[lang].destaqueSub}</p>`;
+      
+      destaques.forEach((item, index) => {
+        const itemId = "destaque-" + index;
+        const nome = item.nome_pt;
+        const desc = item.descricao_pt;
+        const bebida = item.bebida_sugerida_pt;
+        
+        // Verifica se tem variações
+        const vars = [];
+        let temVariacoes = false;
+        for (const n of [1,2,3]) {
+          const labelPt = item[`var${n}_label_pt`];
+          const vp = item[`var${n}_preco`];
+          if (labelPt && String(labelPt).trim() !== "") {
+            temVariacoes = true;
+            const labelPtEsc = String(labelPt || "").replace(/'/g, "\\'");
+            const labelEnEsc = String(item[`var${n}_label_en`] || labelPt || "").replace(/'/g, "\\'");
+            const vpNum = parseFloat(String(vp).replace(",", "."));
+            const vpTxt = formatarPreco(vpNum);
+            const addBtn = vpTxt ? `<button class="var-add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${vpNum},'${labelPtEsc}','${labelEnEsc}')">+</button>` : "";
+            vars.push(`<span>${labelPt}: <b>${vpTxt || "—"}</b>${addBtn}</span>`);
+          }
+        }
+
+        const preco = parseFloat(String(item.preco).replace(",", "."));
+        const precoTxt = formatarPreco(preco);
+        
+        html += `<div class="destaque-card">
+          <span class="badge">${textos[lang].badge}</span>`;
+        
+        if (!temVariacoes && precoTxt) {
+          html += `<span class="price">${precoTxt}</span>`;
+        }
+        
+        html += `<h3>${nome}</h3>`;
+        html += `<p>${desc || ""}</p>`;
+        
+        if (bebida) {
+          html += `<div class="pairing">🍹 <strong>${textos[lang].pairing}</strong> ${bebida}</div>`;
+        }
+        
+        if (vars.length) {
+          html += `<div class="variations">${vars.join("")}</div>`;
+        }
+        
+        if (!temVariacoes && precoTxt) {
+          html += `<div class="add-row">
+            <div class="qty-stepper">
+              <button onclick="stepDraft('${itemId}',-1)">−</button>
+              <span class="qty-val" id="qtyval-${itemId}">0</span>
+              <button onclick="stepDraft('${itemId}',1)">+</button>
+            </div>
+            <button class="add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${preco})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              ${textos[lang].add}
+            </button>
+          </div>`;
+        }
+        
+        html += `</div>`;
+      });
+      
+      html += `</section>`;
+    }
+
+    // ============================================================
+    // CATEGORIAS
+    // ============================================================
+    ordem.forEach(cat => {
+      const nomeCategoria = cat;
+      html += `<section class="category" id="cat-${slug(cat)}">
+        <div class="category-head"><span class="icon">${iconSvg(icons[cat] || "plate")}</span><h2>${nomeCategoria}</h2></div>`;
+      
+      categorias[cat].forEach((item, idx) => {
+        const itemId = `${slug(cat)}-${idx}`;
+        const nome = item.nome_pt;
+        const desc = item.descricao_pt;
+        const preco = parseFloat(String(item.preco).replace(",", "."));
+        const precoTxt = formatarPreco(preco);
+        
+        // Verifica se tem variações
+        const vars = [];
+        let temVariacoes = false;
+        for (const n of [1,2,3]) {
+          const labelPt = item[`var${n}_label_pt`];
+          const vp = item[`var${n}_preco`];
+          if (labelPt && String(labelPt).trim() !== "") {
+            temVariacoes = true;
+            const labelPtEsc = String(labelPt || "").replace(/'/g, "\\'");
+            const labelEnEsc = String(item[`var${n}_label_en`] || labelPt || "").replace(/'/g, "\\'");
+            const vpNum = parseFloat(String(vp).replace(",", "."));
+            const vpTxt = formatarPreco(vpNum);
+            const addBtn = vpTxt ? `<button class="var-add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${vpNum},'${labelPtEsc}','${labelEnEsc}')">+</button>` : "";
+            vars.push(`<span>${labelPt}: <b>${vpTxt || "—"}</b>${addBtn}</span>`);
+          }
+        }
+
+        html += `<div class="item">`;
+        
+        // Nome e preço principal
+        html += `<div class="item-top">
+          <span class="item-name">${nome || ""}</span>`;
+        
+        // Se NÃO tem variações, mostra o preço principal
+        if (!temVariacoes && precoTxt) {
+          html += `<span class="item-price">${precoTxt}</span>`;
+        } else if (!temVariacoes && !precoTxt) {
+          html += `<span class="item-price empty">—</span>`;
+        } else {
+          html += `<span class="item-price empty"></span>`;
+        }
+        
+        html += `</div>`;
+        
+        // Descrição
+        if (desc) {
+          html += `<div class="item-desc">${desc}</div>`;
+        }
+        
+        // Variações
+        if (vars.length) {
+          html += `<div class="variations">${vars.join("")}</div>`;
+        }
+        
+        // Botão "Adicionar" para itens SEM variações
+        if (!temVariacoes && precoTxt) {
+          html += `<div class="add-row">
+            <div class="qty-stepper">
+              <button onclick="stepDraft('${itemId}',-1)">−</button>
+              <span class="qty-val" id="qtyval-${itemId}">0</span>
+              <button onclick="stepDraft('${itemId}',1)">+</button>
+            </div>
+            <button class="add-btn" onclick="addToCart('${itemId}','${nome.replace(/'/g, "\\'")}','${nome.replace(/'/g, "\\'")}',${preco})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              ${textos[lang].add}
+            </button>
+          </div>`;
+        }
+        
+        html += `</div>`;
+      });
+      html += `</section>`;
+    });
+
+    // social
+    html += `<div class="social-card">
+      <p>${textos[lang].social}</p>
+      <div class="social-links">
+        <a href="https://instagram.com/${INSTAGRAM_HANDLE}" target="_blank" rel="noopener">📸 ${textos[lang].instagram} @${INSTAGRAM_HANDLE}</a>
+        <a href="https://search.google.com/local/writereview?placeid=ChIJwysHH36NypQRXcxENCe5BEc" target="_blank" rel="noopener">⭐ ${textos[lang].review}</a>
+      </div>
+    </div>`;
+
+    content.innerHTML = html;
+  }
+
+  function scrollToCat(s) {
+    const el = document.getElementById("cat-" + s);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Carregar dados da planilha
+  Papa.parse(SHEET_CSV_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      items = results.data.filter(row => row.nome_pt && row.nome_pt.trim() !== "");
+      render();
+    },
+    error: function() {
+      document.getElementById("content").innerHTML = `<div class="status">${textos[lang].erro}</div>`;
+    }
+  });
+
+  initUI();
+</script>
+</body>
+</html>
